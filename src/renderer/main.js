@@ -22,7 +22,11 @@ require('admin-lte/dist/css/skins/_all-skins.min.css')
 /* eslint-disable no-new */
 
 import Datatable from 'vue2-datatable-component'
+require('vue2-datatable-component/dist/min.css')
 Vue.use(Datatable) // done!
+// Vuefire
+var VueFire = require('vuefire')
+Vue.use(VueFire)
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.http = Vue.prototype.$http = axios
@@ -32,7 +36,7 @@ new Vue({
   components: { App },
   router,
   store,
-  template: '<App/>'
+  template: '<App/>',
 }).$mount('#app')
 
 // --------------------------->

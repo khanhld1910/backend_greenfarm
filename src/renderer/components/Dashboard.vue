@@ -19,25 +19,23 @@
 </template>
 
 <script>
-  import Header from "./Dashboard/Header"
-  import Aside from "./Dashboard/Aside"
-  import Footer from "./Dashboard/Footer"
-  import Content from "./Dashboard/Content"
-  
-  export default {
-    name: "dashboard",
-    components: {
-      "app-header": Header,
-      "app-aside": Aside,
-      "app-footer": Footer,
-      "app-content": Content,
-    }
-  }
+import Header from "./Dashboard/Header";
+import Aside from "./Dashboard/Aside";
+import Footer from "./Dashboard/Footer";
+import Content from "./Dashboard/Content";
 
+export default {
+  name: "dashboard",
+  components: {
+    "app-header": Header,
+    "app-aside": Aside,
+    "app-footer": Footer,
+    "app-content": Content
+  }
+};
 </script>
 
 <style lang="scss">
-
 .content--list,
 .content--detail {
   padding: 0;
@@ -51,15 +49,31 @@
     }
     .box-body {
       height: calc(100% - 41px - 41px);
-    }    
+    }
+    &.box-no-header .box-body {
+      height: calc(100% - 41px);
+    }
   }
 }
-
 .content--list {
-  padding-right: 10px;  
+  padding-right: 10px;
 }
 .content--detail {
   padding-left: 10px;
 }
 
+div[name="Datatable"] {
+  height: 100%;
+  div[name="SimpleTable"], .-complex-table {
+    height: calc(100% - 45px - 44px) !important;
+    .-table-header {
+      height: 58px;
+      margin: 0px;
+    }
+    .-table-body {
+      max-height: calc(100% - 58px) !important;
+      margin: 0px;
+    }
+  }
+}
 </style>

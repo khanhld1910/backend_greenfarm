@@ -20,19 +20,15 @@ let mainConfig = {
       {
         test: /\.js$/,
         use: 'babel-loader',
-        exclude: /node_modules/
+        exclude: /node_modules/,
+        include: [
+          /vue2-datatable-component/ // <-- add this!
+        ]
       },
       {
         test: /\.node$/,
         use: 'node-loader'
       },
-      {
-        test: /\.js$/,
-        loader: 'babel-loader?cacheDirectory',
-        include: [
-          /vue2-datatable-component/ // <-- add this!
-        ]
-      }
     ]
   },
   node: {

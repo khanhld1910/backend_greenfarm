@@ -11,33 +11,35 @@
     <!-- Main content -->
     <section class="content row">
       <div class="col-xs-7 content--list">
-        <div class="box box-solid">
-            <div class="box-header with-border">
-              <h3 class="box-title">Danh sách đặt hàng</h3>
-            </div>
-            
-            <div class="box-body">
-              <p><code>query: {{ query }}</code></p>
-              <datatable v-bind="$data" />
+        <div class="box box-solid box-no-header">
+
+            <div class="box-body">              
+              <datatable v-bind="$data">
+                <button class="btn btn-default" @click="alertSelectedUids" :disabled="!selection.length">
+                  <i class="fa fa-commenting-o"></i>
+                  Alert selected uid(s)
+                </button>
+              </datatable>
             </div>
 
-            <div class="box-footer">
-              The footer of the box
+            <div class="box-footer">              
+              <p><code>{{ queryDisplay }}</code></p>
+            </div>
+            
+            <div id="sent-bills-overlay" class="overlay">
+              <i class="fa fa-spinner fa-spin"></i>
             </div>
           </div>
       </div>
       <div class="col-xs-5 content--detail">        
-        <div class="box box-solid box-default">
-          <div class="box-header with-border">
-            <h3 class="box-title">Progress Bars Different Sizes</h3>
-          </div>
-          
+        <div class="box box-solid box-default box-no-header">          
           <div class="box-body">
           </div>
 
           <div class="box-footer">
             The footer of the box
           </div>
+
         </div>
       </div>  
     </section>
@@ -46,102 +48,110 @@
 </template>
 
 <script>
-var columns = [
-  {
-    data: null,
-    width: "5%",
-    title: "STT",
-    className: "dt-center",
-    orderable: true,
-    selectRow: true,
-    visible: true,
-    render: function(data, type, full, meta) {
-      return meta.row + 1;
-    }
-  },
-  {
-    data: "name",
-    width: "35%",
-    title: "Khách hàng",
-    orderable: true,
-    visible: true,
-    searchable: true
-  },
-  {
-    data: "phone",
-    width: "25%",
-    title: "Điện thoại",
-    orderable: true,
-    visible: true,
-    className: "dt-right",
-    render: function(phone) {
-      return vueInstance.$AppHelper.phoneFormat(phone);
-    }
-  },
-  {
-    data: "deliverTime",
-    width: "20%",
-    title: "Ngày giao",
-    orderable: true,
-    visible: true,
-    render: function(datetime) {
-      return vueInstance.$AppHelper.convertFromFirebaseValue(datetime);
-    },
-    className: "dt-right"
-  },
-  {
-    data: "morningDeliver",
-    width: "10%",
-    title: "Buổi",
-    orderable: true,
-    visible: true,
-    render: function(morningDeliver) {
-      return morningDeliver == true || morningDeliver == "true"
-        ? "Sáng"
-        : "Chiều";
-    },
-    className: "dt-right"
-  },
-  {
-    data: null,
-    width: "5%",
-    className: "dt-center"
-  }
-];
+import Vue from "vue"
+import components from "../comps/"
+import { DatatableHelper } from "../../helpers/datatable-helper"
+import { db } from "../../helpers/firebase-helper"
 
 export default {
+  components,
   data: function() {
     return {
+      tblClass: "table-bordered",
+      tblStyle: "color: #666",
+      pageSizeOptions: [10, 15, 20],
+      fixHeaderAndSetBodyMaxHeight: 200,
+      tblStyle: 'table-layout: fixed', // must
       columns: [
-        { title: "Khách hàng", field: "name"},
-        { title: "Số ĐT", field: "phone" },
-        { title: "Ngày tạo", field: "sentTime", sortable: true},
-        { title: "Ngày giao", field: "deliverTime", sortable: true },
-        { title: "Buổi", field: "morningDeliver"},
-        { title: "Thành tiền", field: "totalCost", sortable: true},
+        {
+          title: "Khách hàng",
+          field: "name",
+          thComp: "FilterTh",
+        },
+        { 
+          title: "Số ĐT", 
+          field: "phone", 
+          tdComp: "Phone", 
+          thComp: "FilterTh",
+          colStyle: {width: '105px'}
+        },
+        {
+          title: "Ngày tạo",
+          field: "sentTime",
+          sortable: true,
+          visible: false,
+          colStyle: {width: '105px'}
+        },
+        { 
+          title: "Ngày giao", 
+          field: "deliverTime", 
+          sortable: true,      
+          tdComp: "CustomDate",          
+          colStyle: {width: '90px'}
+        },
+        { 
+          title: "Buổi", 
+          field: "morningDeliver" ,        
+          tdComp: "DeliverPeriod",
+          colStyle: {width: '55px'}
+        },
+        { 
+          title: "Thành tiền", 
+          field: "totalCost",           
+          tdComp: "Currency", 
+          sortable: true,    
+          colStyle: {width: '90px'}
+        }
       ],
       data: [],
       total: 0,
-      query: {}
-    };
+      selection: [],
+      query: {},
+      xprops: {
+        eventbus: new Vue()
+      },
+      sentBills: [],
+      queryDisplay: ''
+    }
   },
   mounted: function() {
-    this.$store.dispatch('getBillList').then(bills => {
-      this.data = bills
-    })
+    this.$bindAsArray('sentBills', db.ref().child('Bills').orderByChild('status').equalTo(1))
   },
-  methods: {},
   watch: {
     query: {
-      handler(query) {
-        this.total = this.data.length        
+      handler() {
+        this.handleQueryChange()
+      },
+      deep: true
+    },
+    sentBills: {
+      handler() {
+        this.handleQueryChange()
       },
       deep: true
     }
+  },
+  methods: {
+    handleQueryChange() {
+      $('#sent-bills-overlay').show()
+      DatatableHelper.fillTable(this.sentBills, this.query).then(
+        ({ rows, total, queryDisplay }) => {
+          this.data = rows
+          this.total = total
+          this.queryDisplay = queryDisplay          
+          setTimeout(() => $('#sent-bills-overlay').hide(), 300)          
+        }
+      )
+    },
+    alertSelectedUids() {
+      alert(this.selection.map(({ id }) => id))
+    }
   }
-};
+}
 </script>
 
 <style scoped>
-
+  #sent-bills-overlay {
+    display: none;
+  }
 </style>

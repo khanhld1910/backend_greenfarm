@@ -121,19 +121,4 @@ table.table-small {
   border-bottom: 1px solid rgba(0, 0, 0, 0.2);
 }
 
-.input-group {
-  margin-bottom: 10px;
-}
-
-.quantity-tool {
-  padding: 0 5px;
-  font-size: 1.4rem;
-}
-.vdp-datepicker {
-  input {
-    border: none !important;
-    width: 100% !important;
-    text-align: right;
-  }
-}
 </style>
