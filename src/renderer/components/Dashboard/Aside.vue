@@ -15,7 +15,7 @@
       <!-- sidebar menu: : style can be found in sidebar.less -->
       <ul class="sidebar-menu tree" data-widget="tree">
         <li class="header">QUẢN LÝ</li>
-         <router-link to="/bills" tag="li" class="treeview menu-open" active-class="active">  
+         <router-link to="/bills" tag="li" class="treeview" active-class="active">  
           <a href="#">
             <i class="fa fa-tasks"></i> <span>Hóa đơn</span>
             <span class="pull-right-container">

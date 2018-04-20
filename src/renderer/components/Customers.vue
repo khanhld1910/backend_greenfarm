@@ -3,8 +3,8 @@
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>
-        Hóa Đơn
-        <small>danh sách hóa đơn đã hoàn thành</small>
+        Khách hàng
+        <small>danh sách khách hàng</small>
       </h1>
     </section>
   
@@ -17,7 +17,11 @@
               <datatable v-bind="$data">
                 <button class="btn btn-default" @click="alertSelectedUids" :disabled="!selection.length">
                   <i class="fa fa-commenting-o"></i>
-                  Alert selected uid(s)
+                  Alert selected id(s)
+                </button>
+                <button class="btn btn-success pull-right" @click="refreshData" style="margin: 0 5px;">
+                  <i class="fa fa-refresh"></i>
+                  Refresh
                 </button>
               </datatable>
             </div>
@@ -49,9 +53,9 @@
 
 <script>
 import Vue from "vue"
-import components from "../comps/"
-import { DatatableHelper } from "../../helpers/datatable-helper"
-import { db } from "../../helpers/firebase-helper"
+import components from "./comps/"
+import { DatatableHelper } from "../helpers/datatable-helper"
+import { db } from "../helpers/firebase-helper"
 
 export default {
   components,
@@ -64,44 +68,30 @@ export default {
       tblStyle: 'table-layout: fixed', // must
       columns: [
         {
-          title: "Khách hàng",
+          title: "Họ tên",
           field: "name",
           thComp: "FilterTh",
         },
         { 
-          title: "Số ĐT", 
-          field: "phone", 
-          tdComp: "Phone", 
-          thComp: "FilterTh",
-          colStyle: {width: '105px'}
-        },
-        {
-          title: "Ngày tạo",
-          field: "sentTime",
-          sortable: true,
-          visible: false,
-          colStyle: {width: '105px'}
+          title: "Giới tính", 
+          field: "isMale",   
+          colStyle: {'width': '80px'}
         },
         { 
-          title: "Ngày giao", 
-          field: "deliverTime", 
-          sortable: true,      
-          tdComp: "CustomDate",          
-          colStyle: {width: '90px'}
+          title: "Số Đt", 
+          field: "phone",    
+          tdComp: "Phone",  
+          thComp: "FilterTh", 
+          colStyle: {width: '120px'}
         },
         { 
-          title: "Buổi", 
-          field: "morningDeliver" ,        
-          tdComp: "DeliverPeriod",
-          colStyle: {width: '55px'}
+          title: "Ngày sinh", 
+          field: "birthday",    
+          sortable: true, 
+          colStyle: {width: '120px'}, 
+          thComp: 'CreatetimeTh', 
+          tdComp: 'DateOpt'
         },
-        { 
-          title: "Thành tiền", 
-          field: "totalCost",           
-          tdComp: "Currency", 
-          sortable: true,    
-          colStyle: {width: '90px'}
-        }
       ],
       data: [],
       total: 0,
@@ -115,7 +105,7 @@ export default {
     }
   },
   mounted: function() {
-    this.$bindAsArray('firebaseArray', db.ref().child('Bills').orderByChild('status').equalTo(3))
+    this.$bindAsArray('firebaseArray', db.ref().child('Users').orderByChild('id'))
   },
   watch: {
     query: {
@@ -136,7 +126,16 @@ export default {
       $('#table-overlay').show()
       DatatableHelper.fillTable(this.firebaseArray, this.query).then(
         ({ rows, total, queryDisplay }) => {
-          this.data = rows
+          this.data = rows.map(row => {
+            if (!row.name) row.name = 'UNNAMED'
+            if (!row.isMale) {
+              row.isMale = 'UNSET'
+            } else {
+              row.isMale = (row.isMale == true || row.isMale == 'true') ? 'Nam' : 'Nữ'  
+            }
+
+            return row
+          })
           this.total = total
           this.queryDisplay = queryDisplay          
           setTimeout(() => $('#table-overlay').hide(), 300)          
@@ -145,7 +144,10 @@ export default {
     },
     alertSelectedUids() {
       alert(this.selection.map(({ id }) => id))
-    }
+    },
+    refreshData() {
+      alert('do something!!!')
+    }  
   }
 }
 </script>

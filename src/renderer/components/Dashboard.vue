@@ -12,6 +12,25 @@
 
     <app-footer>
     </app-footer>
+
+    <div class="alert-column"> 
+      <div 
+        v-for="(alert, index) in alerts" 
+        v-bind:key="index"
+        class="alert alert-dismissible "
+        v-bind:id="`alert-${index+1}`"
+        v-bind:class="`alert-${alert.type}`">
+          <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+          <h4>
+            <i class="icon fa fa-ban" v-if="alert.type == 'danger'"></i> 
+            <i class="icon fa fa-check" v-if="alert.type == 'success'"></i> 
+            <i class="icon fa fa-info" v-if="alert.type == 'info'"></i> 
+            <i class="icon fa fa-warning" v-if="alert.type == 'warning'"></i> 
+            {{ alert.title }}
+          </h4>
+          {{ alert.message }}
+      </div>
+    </div>
   
     <div class="control-sidebar-bg"></div>  
       
@@ -26,16 +45,39 @@ import Content from "./Dashboard/Content";
 
 export default {
   name: "dashboard",
+  computed: {
+    alerts: function() {
+      return this.$store.getters.alerts
+    }
+  },
   components: {
     "app-header": Header,
     "app-aside": Aside,
     "app-footer": Footer,
     "app-content": Content
   }
-};
+}
 </script>
 
 <style lang="scss">
+
+.alert-column {
+  overflow: auto;
+  width: 50vw;
+  height: auto;
+  top: 60px;
+  right: 20px;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  .alert {
+    width: 100%;
+    z-index: 999;
+    opacity: 0.8;
+  }
+}
+
 .content--list,
 .content--detail {
   padding: 0;
@@ -75,5 +117,17 @@ div[name="Datatable"] {
       margin: 0px;
     }
   }
+  th {
+    padding: 8px 5px !important;
+  }
+  .col_right-align {
+    text-align: right !important;
+  }
+  .-table-body {
+    overflow-x: hidden;
+    border-bottom: 1px solid #f4f4f4;
+  }
+
+
 }
 </style>

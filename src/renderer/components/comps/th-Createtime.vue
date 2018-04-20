@@ -1,11 +1,10 @@
 <template>
   <div class="-th-createtime-comp">
-    Create time by &nbsp;
     <select class="form-control input-sm" v-model="displayBy">
-      <option value="year">Year</option>
-      <option value="month">Month</option>
-      <option value="week">Week</option>
-      <option value="day">Day</option>
+      <option value="year">NĂM</option>
+      <option value="month">THÁNG</option>
+      <option value="week">TUẦN</option>
+      <option value="day">NGÀY</option>
     </select>
   </div>
 </template>

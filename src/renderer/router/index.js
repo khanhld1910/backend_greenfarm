@@ -4,6 +4,8 @@ let Dashboard = require('@/components/Dashboard')
 let Sent = require('@/components/Bills/Sent')
 let Checked = require('@/components/Bills/Checked')
 let Done = require('@/components/Bills/Done')
+let Products = require('@/components/Products')
+let Customers = require('@/components/Customers')
 
 Vue.use(Router)
 
@@ -34,18 +36,28 @@ const router = new Router({
           path: 'bills/done',
           component: Done.default,
           name: 'bills/done'
+        },  
+        {
+          path: 'products',
+          component: Products.default,
+          name: 'products'
+        }, 
+        {
+          path: 'customers',
+          component: Customers.default,
+          name: 'customers'
         },
       ]
     },
     {
       path: '*',
-      redirect: '/bills/sent'
+      redirect: '/products'
     }
   ]
 })
 
 router.replace({
   path: '*',
-  redirect: '/bills/sent'
+  redirect: '/products'
 })
 export default router

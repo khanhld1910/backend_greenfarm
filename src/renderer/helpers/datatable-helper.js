@@ -9,6 +9,11 @@ const getColTitle = field => {
     case 'phone': return 'số đt'
     case 'totalCost': return 'thành tiền'
     case 'deliverTime': return 'ngày giao'
+    case 'amount': return 'số lượng'
+    case 'unitPrice': return 'đơn giá'
+    case 'salePrice': return 'giá khuyến mãi'
+    case 'birthday': return 'sinh nhật'
+    case 'onSale': return 'Đang bày bán'
     default: return field
   }
 }
@@ -45,7 +50,7 @@ export const DatatableHelper = {
       rows = orderBy(rows, sort, order)
     }
 
-    let queryDisplay = 'Kết quả'
+    let queryDisplay = `Có ${rows.length} kết quả`
 
     for (var key in query) {
       if (query.hasOwnProperty(key)) {
@@ -54,14 +59,14 @@ export const DatatableHelper = {
         if (value != '' && value.length > 0 ) {
           if (key == 'offset' || key == 'limit') continue
           if (key == 'sort') {            
-            queryDisplay += ` theo "${getColTitle(value)}" `
+            queryDisplay += ` theo [${getColTitle(value)}] `
             continue
           }
           if (key == 'order') {       
             queryDisplay += (value == 'desc') ? ' giảm dần' : ' tăng dần'
             continue
           }
-          queryDisplay += `, ${getColTitle(key)}: "${value}"` 
+          queryDisplay += `, [${getColTitle(key)}]: ${value}` 
         }
       }
     }

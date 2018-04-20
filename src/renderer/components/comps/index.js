@@ -8,6 +8,11 @@ import Phone from './td-Phone';
 import Currency from './td-Currency';
 import DeliverPeriod from './td-DeliverPeriod';
 import CustomDate from './td-Date';
+import DateOpt from './td-DateOpt';
+import Rating from './td-Rating';
+import NumberDisplay from './td-Number';
+import NameWithDataAttrs from './td-NameWithDataAttrs';
+import Enable from './td-Enable';
 import Opt from './td-Opt';
 import FilterTh from './th-Filter';
 
@@ -24,6 +29,11 @@ export default {
     Currency: Currency,
     DeliverPeriod: DeliverPeriod,
     CustomDate: CustomDate,
+    DateOpt: DateOpt,
+    Rating: Rating,
+    NumberDisplay: NumberDisplay,
+    NameWithDataAttrs: NameWithDataAttrs,
+    Enable: Enable
     // [Vue warn]:  Do not use built-in or reserved HTML elements as component id:  Filter
     // Filter: ('./th-Filter')
 }

@@ -1,7 +1,7 @@
 <template>
-  <span class="-td-deliver_period-comp">
+  <p class="-td-deliver_period-comp">
     {{ period }}
-  </span>
+  </p>
 </template>
 
 <script>

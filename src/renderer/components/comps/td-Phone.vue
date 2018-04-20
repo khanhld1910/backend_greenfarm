@@ -21,6 +21,6 @@ export default {
 
 <style>
 .-td-phone-comp {
-  text-align: left;
+  text-align: right;
 }
 </style>

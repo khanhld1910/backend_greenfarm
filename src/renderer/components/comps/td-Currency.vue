@@ -1,6 +1,7 @@
 <template>
   <div class="-td-currency-comp">
-    {{ currency }} đ
+    {{ currency }} 
+    <span v-if="value != ''">đ</span>
   </div>
 </template>
 
@@ -11,10 +12,9 @@ import { currencyFormat } from '../../helpers/app-helper'
 export default {
   props: ["value"],
   computed: {
-    currency: function() {
-      return currencyFormat(this.value)
-    }
-    
+    currency: function() {      
+      return this.value == '' ? 'không' : currencyFormat(this.value)
+    }    
   }
 };
 </script>

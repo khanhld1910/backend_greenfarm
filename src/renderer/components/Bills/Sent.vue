@@ -26,7 +26,7 @@
               <p><code>{{ queryDisplay }}</code></p>
             </div>
             
-            <div id="sent-bills-overlay" class="overlay">
+            <div id="table-overlay" class="overlay">
               <i class="fa fa-spinner fa-spin"></i>
             </div>
           </div>
@@ -110,12 +110,12 @@ export default {
       xprops: {
         eventbus: new Vue()
       },
-      sentBills: [],
+      firebaseArray: [],
       queryDisplay: ''
     }
   },
   mounted: function() {
-    this.$bindAsArray('sentBills', db.ref().child('Bills').orderByChild('status').equalTo(1))
+    this.$bindAsArray('firebaseArray', db.ref().child('Bills').orderByChild('status').equalTo(1))
   },
   watch: {
     query: {
@@ -124,7 +124,7 @@ export default {
       },
       deep: true
     },
-    sentBills: {
+    firebaseArray: {
       handler() {
         this.handleQueryChange()
       },
@@ -133,13 +133,13 @@ export default {
   },
   methods: {
     handleQueryChange() {
-      $('#sent-bills-overlay').show()
-      DatatableHelper.fillTable(this.sentBills, this.query).then(
+      $('#table-overlay').show()
+      DatatableHelper.fillTable(this.firebaseArray, this.query).then(
         ({ rows, total, queryDisplay }) => {
           this.data = rows
           this.total = total
           this.queryDisplay = queryDisplay          
-          setTimeout(() => $('#sent-bills-overlay').hide(), 300)          
+          setTimeout(() => $('#table-overlay').hide(), 300)          
         }
       )
     },
@@ -151,7 +151,7 @@ export default {
 </script>
 
 <style scoped>
-  #sent-bills-overlay {
+  #table-overlay {
     display: none;
   }
 </style>
