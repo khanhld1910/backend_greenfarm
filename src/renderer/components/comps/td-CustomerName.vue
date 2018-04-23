@@ -9,8 +9,7 @@
 export default {
   props: ["value", 'row'],
   mounted: function() {
-    console.log(this.row.name, this.row.id)
-    $(this.$el).closest('tr').attr( 'data-row-id', this.row.id)
+    $(this.$el).closest('tr').attr( 'data-row-id', this.row.phone)
   }
 };
 </script>

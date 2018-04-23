@@ -55,6 +55,12 @@
             <span>Khách Hàng</span>
           </a>
         </router-link>
+        <router-link to="/chats" tag="li" active-class="active">  
+          <a href="#">
+            <i class="fa fa-fw fa-wechat"></i>
+            <span>Tin Nhắn</span>
+          </a>
+        </router-link>
         <li class="header">CÀI ĐẶT</li>
         <router-link to="/settings" tag="li" active-class="active">  
           <a href="/settings">

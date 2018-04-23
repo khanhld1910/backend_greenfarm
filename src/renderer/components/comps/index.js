@@ -13,7 +13,10 @@ import Rating from './td-Rating';
 import NumberDisplay from './td-Number';
 import NameWithDataAttrs from './td-NameWithDataAttrs';
 import Enable from './td-Enable';
+import Saver from './td-Saver';
 import Opt from './td-Opt';
+import CustomerName from './td-CustomerName';
+import ChatTime from './td-ChatTime';
 import FilterTh from './th-Filter';
 
 export default {
@@ -33,7 +36,10 @@ export default {
     Rating: Rating,
     NumberDisplay: NumberDisplay,
     NameWithDataAttrs: NameWithDataAttrs,
-    Enable: Enable
+    Enable: Enable,
+    Saver: Saver,
+    CustomerName: CustomerName,
+    ChatTime: ChatTime
     // [Vue warn]:  Do not use built-in or reserved HTML elements as component id:  Filter
     // Filter: ('./th-Filter')
 }

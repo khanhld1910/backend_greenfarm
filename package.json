@@ -1,9 +1,9 @@
 {
   "name": "greenfarm",
-  "version": "0.0.0",
+  "version": "1.0.1",
   "author": "Khanh Luong <khanhld1910@gmail.com>",
   "description": "An electron-vue project",
-  "license": null,
+  "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
     "build": "node .electron-vue/build.js && electron-builder",
@@ -17,8 +17,8 @@
     "postinstall": ""
   },
   "build": {
-    "productName": "greenfarm",
-    "appId": "org.simulatedgreg.electron-vue",
+    "productName": "Phú Thịnh Greenfarm",
+    "appId": "dolphindreams.phuthinh-greenfarm.admin",
     "directories": {
       "output": "build"
     },
@@ -54,6 +54,7 @@
     "admin-lte": "^2.4.3",
     "axios": "^0.16.1",
     "bootstrap": "3.3.7",
+    "bootstrap-datepicker": "^1.8.0",
     "firebase": "^4.12.1",
     "icheck": "^1.0.2",
     "inputmask": "^3.3.11",
@@ -67,6 +68,7 @@
     "vue-router": "^2.5.3",
     "vue2-datatable-component": "^2.2.2",
     "vuefire": "^1.4.5",
+    "vuejs-datepicker": "^0.9.29",
     "vuex": "^2.3.1"
   },
   "devDependencies": {

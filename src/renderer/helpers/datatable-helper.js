@@ -14,6 +14,10 @@ const getColTitle = field => {
     case 'salePrice': return 'giá khuyến mãi'
     case 'birthday': return 'sinh nhật'
     case 'onSale': return 'Đang bày bán'
+    case 'saved': return 'điểm tích luỹ'
+    case 'content': return 'nội dung'
+    case 'time': return 'thời gian'
+    
     default: return field
   }
 }
@@ -21,15 +25,15 @@ const getColTitle = field => {
 
 export const DatatableHelper = {
 
-  fillTable: (data, query) => {  
-    
-    let rows = data 
+  fillTable: (data, query) => {
+
+    let rows = data
 
     query = purify(query)
 
     const { limit = 10, offset = 0, sort = '', order = '' } = query
 
-    let queryFields = ['phone', 'name', 'totalCost']
+    let queryFields = ['phone', 'name', 'totalCost', 'content']
 
     // custom query conditions
     queryFields.forEach(field => {
@@ -38,7 +42,11 @@ export const DatatableHelper = {
           rows = rows.filter(row => query[field].includes(row[field]))
           break
         case 'string':
-          rows = rows.filter(row => row[field].toLowerCase().includes(query[field].toLowerCase()))
+
+          rows = rows.filter(row => {
+            if (!row[field]) return true
+            return row[field].toLowerCase().includes(query[field].toLowerCase())
+          })
           break
         default:
           // nothing to do
@@ -56,17 +64,17 @@ export const DatatableHelper = {
       if (query.hasOwnProperty(key)) {
         let value = query[key]
 
-        if (value != '' && value.length > 0 ) {
+        if (value != '' && value.length > 0) {
           if (key == 'offset' || key == 'limit') continue
-          if (key == 'sort') {            
+          if (key == 'sort') {
             queryDisplay += ` theo [${getColTitle(value)}] `
             continue
           }
-          if (key == 'order') {       
+          if (key == 'order') {
             queryDisplay += (value == 'desc') ? ' giảm dần' : ' tăng dần'
             continue
           }
-          queryDisplay += `, [${getColTitle(key)}]: ${value}` 
+          queryDisplay += `, [${getColTitle(key)}]: ${value}`
         }
       }
     }

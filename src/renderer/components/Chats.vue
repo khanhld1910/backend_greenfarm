@@ -3,8 +3,8 @@
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>
-        Khách Hàng
-        <small>Danh sách khách hàng</small>
+        Tin Nhắn
+        <small>Danh sách tin nhắn</small>
       </h1>
     </section>
   
@@ -98,6 +98,7 @@ import components from "./comps";
 import { DatatableHelper } from "../helpers/datatable-helper";
 import { db } from "../helpers/firebase-helper";
 import { phoneFormat, toDate, currencyFormat } from "../helpers/app-helper";
+import { firebase } from "@firebase/app";
 
 export default {
   components,
@@ -105,43 +106,27 @@ export default {
     return {
       tblClass: "vue2-datatable table-bordered",
       tblStyle: "color: #666",
-      pageSizeOptions: [10, 15, 20],
+      pageSizeOptions: [10, 15, 20, 100],
       fixHeaderAndSetBodyMaxHeight: 200,
       tblStyle: "table-layout: fixed", // must
       columns: [
         {
-          title: "Họ tên",
-          field: "name",
-          thComp: "FilterTh",
-          tdComp: "CustomerName"
-        },
-        {
-          title: "Giới tính",
-          visible: false,
-          field: "isMale",
-          colStyle: { width: "75px" }
-        },
-        {
           title: "Số Đt",
-          field: "phone",
+          field: ".key",
           tdComp: "Phone",
           thComp: "FilterTh",
           colStyle: { width: "120px" }
         },
         {
-          title: "Ngày sinh",
-          field: "birthday",
+          title: "Thời gian",
+          field: "time",
           sortable: true,
           colStyle: { width: "120px" },
-          thComp: "CreatetimeTh",
-          tdComp: "DateOpt"
+          tdComp: "ChatTime"
         },
         {
-          title: "Điểm",
-          field: "saved",
-          sortable: true,
-          colStyle: { width: "90px" },
-          tdComp: "Saver"
+          title: "Nội dung",
+          field: "content"
         }
       ],
       data: [],
@@ -151,6 +136,7 @@ export default {
       xprops: {
         eventbus: new Vue()
       },
+      willBeReversedArray: [],
       firebaseArray: [],
       queryDisplay: "",
       selectedRow: {
@@ -167,9 +153,15 @@ export default {
     };
   },
   mounted: function() {
-    this.$bindAsArray("firebaseArray", db.ref("Users"));
+    this.$bindAsArray("firebaseArray", db.ref("AdminMessageBox"));
     this.setRowEventListeners();
     //Date picker
+  },
+  computed: {
+    reverseArray: function() {
+      let arr = this.firebaseArray;
+      return arr.reverse();
+    }
   },
   watch: {
     query: {
@@ -188,7 +180,7 @@ export default {
       handler(value) {
         if (!value) {
           this.selectedRow = {
-            id: null,
+            id: "",
             name: "",
             phone: "",
             address: "",
@@ -207,19 +199,12 @@ export default {
   methods: {
     handleQueryChange() {
       $("#table-overlay").show();
-      DatatableHelper.fillTable(this.firebaseArray, this.query).then(
+      DatatableHelper.fillTable(this.reverseArray, this.query).then(
         ({ rows, total, queryDisplay }) => {
           this.data = [];
           this.$nextTick(() => {
             this.data = rows.map(row => {
-              if (!row.name) row.name = "UNNAMED_USER";
-              if (!row.isMale) {
-                row.isMale = "UNSET";
-              } else {
-                row.isMale =
-                  row.isMale == true || row.isMale == "true" ? "Nam" : "Nữ";
-              }
-
+              row.content = row.content.substring(0, 80) + "...";
               return row;
             });
             this.total = total;

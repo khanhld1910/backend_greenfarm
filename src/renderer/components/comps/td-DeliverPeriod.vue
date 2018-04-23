@@ -1,5 +1,5 @@
 <template>
-  <p class="-td-deliver_period-comp">
+  <p class="-td-deliver_period-comp" :style="{ 'background-color': value == true ? '#3F51B5' : '#F44336' }">
     {{ period }}
   </p>
 </template>
@@ -18,6 +18,12 @@ export default {
 
 <style >
 .-td-deliver_period-comp {
-  text-align: right;
+  margin: 0;
+  border-radius: 2px;
+  width: 40px;
+  font-size: 12px;
+  color: #fff;
+  text-align: center;
 }
+
 </style>

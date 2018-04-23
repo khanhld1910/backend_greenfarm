@@ -26,7 +26,7 @@ const getters = {
   products: state => {
     return state.products
   },
-  getProductByID: state => productID => {
+  productByID: state => productID => {
     return state.products.find(product => product.id === productID )
   },
   sentBills: state => {

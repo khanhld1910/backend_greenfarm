@@ -19,7 +19,6 @@ export default {
   width: 40px;
   font-size: 12px;
   color: #fff;
-  font-weight: bold;
   text-align: center;
 }
 </style>

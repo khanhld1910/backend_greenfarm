@@ -153,7 +153,7 @@ export default {
     return {
       tblClass: "vue2-datatable table-bordered",
       tblStyle: "color: #666",
-      pageSizeOptions: [10, 15, 20],
+      pageSizeOptions: [10, 15, 20, 100],
       fixHeaderAndSetBodyMaxHeight: 200,
       tblStyle: "table-layout: fixed", // must
       columns: [
@@ -198,6 +198,7 @@ export default {
           title: "Rate",
           field: "ratings",
           tdComp: "Rating",
+          visible: false,
           explain: "Đánh giá của khách hàng",
           colStyle: { width: "70px" }
         }
@@ -273,13 +274,17 @@ export default {
       $("#table-overlay").show();
       DatatableHelper.fillTable(this.firebaseArray, this.query).then(
         ({ rows, total, queryDisplay }) => {
-          this.data = rows.map(row => {
-            row.ratings = this.ratingCalc(row.ratings);
-            return row;
-          });
-          this.total = total;
-          this.queryDisplay = queryDisplay;
-          setTimeout(() => $("#table-overlay").hide(), 300);
+          this.data = []
+          // clear all
+          this.$nextTick(() => {          
+            this.data = rows.map(row => {
+              row.ratings = this.ratingCalc(row.ratings);
+              return row;
+            });
+            this.total = total;
+            this.queryDisplay = queryDisplay;
+            setTimeout(() => $("#table-overlay").hide(), 300);
+          })
         }
       );
     },
@@ -410,14 +415,13 @@ export default {
         } else if (mode == 1) {
           // edit existed product
           let imageChanged = $("input#bigImg").get(0).files.length !== 0
-          console.log('imageChanged', imageChanged)
+          //console.log('imageChanged', imageChanged)
           let thumbnailChanged = $("input#thumbImg").get(0).files.length !== 0
-          console.log('thumbnailChanged', thumbnailChanged) 
+          //console.log('thumbnailChanged', thumbnailChanged) 
 
           if (imageChanged) {
             let bigImg = $("input#bigImg").get(0).files[0]
             let bigImgInfo = await this.uploadImages(bigImg, "#progress-big-img")
-            this.deleteImage(this.selectedRow.imageRef)
             product.image = bigImgInfo.imageURL          
             product.imageRef = bigImgInfo.imageRef
           } else {
@@ -428,7 +432,6 @@ export default {
           if (thumbnailChanged) {   
             let thumbImg = $("input#thumbImg").get(0).files[0]
             let thumbImgInfo = await this.uploadImages(thumbImg, "#progress-thumb-img")
-            this.deleteImage(this.selectedRow.thumbnailRef)
             product.thumbnail = thumbImgInfo.imageURL
             product.thumbnailRef = thumbImgInfo.imageRef
           } else {
@@ -461,8 +464,6 @@ export default {
     },
     deleteProduct() {   
       $('#detail-overlay').show()    
-      this.deleteImage(this.selectedRow.imageRef)
-      this.deleteImage(this.selectedRow.thumbnailRef)
       let name = this.selectedRow.name
 
       db.ref().child(`Products/${this.selectedRowID}`)
@@ -582,22 +583,6 @@ export default {
         );
       });
     },
-    deleteImage(childRef) {         
-      var deleteRef = storage.ref().child(childRef)
-      deleteRef.getDownloadURL()
-        .then(() => {
-          deleteRef.delete().then(function() {
-            // File deleted successfully
-          }).catch(function(error) {
-            console.log(error)
-          })
-        })
-        .catch(() => {
-          console.log('File not exist!')
-
-        })
-      
-    },
     testAlert() {
       let i = Math.round(Math.random()*3)
       let types = ['success', 'warning', 'info', 'danger']
@@ -607,11 +592,11 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
-#table-overlay,
-#detail-overlay {
-  display: none;
+<style lang="scss">
+.m-top-10 {
+  margin-top: 10px !important;
 }
+
 #product--big_img,
 #product--thumb_img {
   max-width: 100%;
@@ -629,9 +614,7 @@ textarea.form-control {
   width: 100% !important;
   height: 80px !important;
 }
-.m-top-10 {
-  margin-top: 10px;
-}
+
 
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {

@@ -45,6 +45,10 @@ import Content from "./Dashboard/Content";
 
 export default {
   name: "dashboard",
+  mounted: function(){
+    this.$store.dispatch('getProducts')
+
+  },
   computed: {
     alerts: function() {
       return this.$store.getters.alerts
@@ -74,7 +78,6 @@ export default {
   .alert {
     width: 100%;
     z-index: 999;
-    opacity: 0.8;
   }
 }
 
@@ -127,7 +130,23 @@ div[name="Datatable"] {
     overflow-x: hidden;
     border-bottom: 1px solid #f4f4f4;
   }
+}
 
-
+#table-overlay,
+#detail-overlay {
+  display: none;
+}
+.vdp-datepicker {
+  height: 34px;
+  input {
+    height: 34px;
+    border: 1px solid #ccc !important;
+    text-align: right;
+    padding-right: 12px;
+    width: 100%;
+  }
+}
+.right-align {
+  text-align: right;
 }
 </style>
