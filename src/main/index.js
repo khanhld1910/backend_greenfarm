@@ -23,6 +23,8 @@ function createWindow() {
     height: 768,
     minWidth: 1024,
     minheight: 768,
+    //frame: false,
+    //resizable: false,
   })
 
   mainWindow.maximize()
@@ -34,6 +36,7 @@ function createWindow() {
     mainWindow = null
   })
 }
+
 
 app.on('ready', createWindow)
 

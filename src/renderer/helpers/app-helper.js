@@ -10,6 +10,7 @@ export const phoneFormat = function(phone) {
 }
 
 export const currencyFormat = function(value) {
+    if (value == 0) return '0'
     if (!value) return 'không'
     return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
 }

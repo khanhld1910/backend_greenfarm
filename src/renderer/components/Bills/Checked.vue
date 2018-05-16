@@ -15,13 +15,23 @@
 
             <div class="box-body">              
               <datatable v-bind="$data">
-                <button class="btn btn-default" @click="alertSelectedUids" :disabled="!selection.length">
-                  <i class="fa fa-commenting-o"></i>
-                  Alert selected uid(s)
+                <button class="btn btn-default" @click="printBills" :disabled="!selection.length">
+                  <span class="text-blue">
+                    <i class="fa fa-print"></i>
+                    In hoá đơn
+                  </span>
                 </button>
-                <button class="btn btn-success pull-right" @click="clearFilters" style="margin: 0 5px;">
-                  <i class="fa fa-times"></i>
-                  Xoá filters
+                <button class="btn btn-default" @click="checkSelectedUids" :disabled="!selection.length" style="margin-left: 5px;">
+                  <span class="text-green">
+                    <i class="fa fa-check"></i>
+                    Duyệt hoá đơn
+                  </span>
+                </button>
+                <button class="btn btn-default pull-right" @click="clearFilters" style="margin: 0 5px;">
+                  <span class="text-blue">
+                    <i class="fa fa-times"></i>
+                    Xoá filters
+                  </span>
                 </button>
               </datatable>
             </div>
@@ -136,8 +146,18 @@
               </div>
           </div>
           <div class="box-footer" style="padding: 5px 10px;">
-            <button class="btn btn-sm btn-primary" @click="checkBill()" v-if="selectedRow.id">Duyệt đơn</button>
-            <button class="btn btn-sm btn-danger pull-right" @click="deleteBill()" v-if="selectedRow.id">Xoá đơn</button>
+            <button class="btn btn-sm btn-default" @click="checkBill()" v-if="selectedRow.id">
+              <span class="text-green">
+                <i class="fa fa-check"></i>
+                Duyệt đơn
+              </span>
+            </button>
+            <button class="btn btn-sm btn-default pull-right" @click="deleteBill()" v-if="selectedRow.id">
+              <span class="text-danger">
+                <i class="fa fa-trash"></i>
+                Xoá đơn
+              </span>
+            </button>
           </div>
           
           <div id="detail-overlay" class="overlay">
@@ -157,7 +177,9 @@ import components from "../comps/";
 import { DatatableHelper } from "../../helpers/datatable-helper";
 import { toTime, currencyFormat } from "../../helpers/app-helper";
 import { db } from "../../helpers/firebase-helper";
+import { print } from "../../helpers/printer-helper";
 import Datepicker from "vuejs-datepicker";
+import { app } from 'electron'
 
 components["Datepicker"] = Datepicker;
 
@@ -235,7 +257,10 @@ export default {
         totalCost: 0
       },
       selectedRowID: null,
-      singleBills: []
+      singleBills: [],
+      
+      checkedBill: null,
+      checkedInvoices: []
     };
   },
   mounted: function() {
@@ -341,8 +366,57 @@ export default {
         vue.selectedRowID = rowID;
       });
     },
-    alertSelectedUids() {
-      alert(this.selection.map(({ id }) => id));
+    printBills() {
+      let idArr = this.selection.map(({ id }) => id)
+
+      for (let i = 0; i < idArr.length; i++) {
+        
+        this.checkedBill = {}
+        this.checkedInvoices = []
+
+        this.$bindAsObject(`checkedBill`, db.ref().child(`Bills/${idArr[i]}`))
+        this.$bindAsArray(
+          "checkedInvoices",
+          db
+            .ref()
+            .child(`Invoices/sent/`)
+            .orderByChild("totalBillID")
+            .equalTo(idArr[i])
+        )
+        print(this.checkedBill, this.checkedInvoices )
+        
+        this.$store.dispatch("alert", {
+          type: "success",
+          title: "Thao thác thành công",
+          message: `Đã in ${idArr.length} hoá đơn!`
+        });
+      }      
+    },
+    checkSelectedUids() {
+      let idArr = this.selection.map(({ id }) => id);
+      $("#detail-overlay").show();
+
+      let updatePromises = [];
+
+      for (let i = 0; i < idArr.length; i++) {
+        let promise = db
+          .ref()
+          .child(`Bills/${idArr[i]}`)
+          .update({ status: 3 });
+        updatePromises.push(promise);
+      }
+
+      Promise.all(updatePromises).then(value => {
+        this.selectedRowID = null;
+        this.$store.dispatch("alert", {
+          type: "success",
+          title: "Thao thác thành công",
+          message: `Đã duyệt thành công ${idArr.length} hoá đơn!`
+        });
+        setTimeout(() => {
+          $("#detail-overlay").hide();
+        }, 500);
+      });
     },
     showSelectedBill() {
       $("#detail-overlay").show();
@@ -387,6 +461,16 @@ export default {
     },
     deleteBill() {
       $("#detail-overlay").show();
+
+      // update product amount
+      for (let i = 0; i < this.singleBills.length; i++) {
+        let bill = this.singleBills[i];
+
+        db.ref(`Products/${bill.productID}/amount`).transaction(amount => {
+          let result = parseInt(amount) + parseInt(bill.quantity);
+          return parseInt(result);
+        });
+      }
 
       db
         .ref()

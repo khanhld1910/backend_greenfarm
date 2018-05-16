@@ -15,13 +15,17 @@
 
             <div class="box-body">              
               <datatable v-bind="$data">
-                <button class="btn btn-default" @click="alertSelectedUids" :disabled="!selection.length">
-                  <i class="fa fa-commenting-o"></i>
-                  Alert selected uid(s)
+                <button class="btn btn-default" @click="checkSelectedUids" :disabled="!selection.length" style="margin-right: 10px;">
+                  <span class="text-green">
+                    <i class="fa fa-check"></i>
+                    Duyệt hoá đơn
+                  </span>
                 </button>
-                <button class="btn btn-success pull-right" @click="clearFilters" style="margin: 0 5px;">
-                  <i class="fa fa-times"></i>
-                  Xoá filters
+                <button class="btn btn-default pull-right" @click="clearFilters" style="margin: 0 5px;">
+                  <span>
+                    <i class="fa fa-times"></i>
+                    Xoá filters
+                  </span>
                 </button>
               </datatable>
             </div>
@@ -153,12 +157,30 @@
               </div>
           </div>
           <div class="box-footer" style="padding: 5px 10px;">
-            <button class="btn btn-sm btn-success" @click="updateBill()" style="margin-right: 10px" v-if="selectedRow.id">{{updateMode ? 'Đồng ý' : 'Cập nhật'}}</button>
-            <button class="btn btn-sm btn-danger" @click="cancelUpdateBill()" style="margin-right: 10px" v-if="selectedRow.id && updateMode">Huỷ bỏ</button>
+            <button class="btn btn-sm btn-default" @click="updateBill()" style="margin-right: 10px" v-if="selectedRow.id">
+              <span class="text-green">
+                {{updateMode ? 'Đồng ý' : 'Cập nhật'}}
+              </span>
+            </button>
+            <button class="btn btn-sm btn-default" @click="cancelUpdateBill()" style="margin-right: 10px" v-if="selectedRow.id && updateMode">
+              <span class="text-yellow">
+                Huỷ bỏ
+              </span>
+            </button>
 
             
-            <button class="btn btn-sm btn-danger pull-right" @click="deleteBill()" v-if="selectedRow.id && !updateMode">Xoá đơn</button>
-            <button class="btn btn-sm btn-primary pull-right" @click="checkBill()" style="margin-right: 10px" v-if="selectedRow.id && !updateMode">Duyệt đơn</button>
+            <button class="btn btn-sm btn-default pull-right" @click="deleteBill()" v-if="selectedRow.id && !updateMode">
+              <span class="text-danger">
+                <i class="fa fa-trash"></i>
+                Xoá đơn
+              </span>
+            </button>
+            <button class="btn btn-sm btn-default pull-right" @click="checkBill()" style="margin-right: 10px" v-if="selectedRow.id && !updateMode">
+              <span class="text-green">
+                <i class="fa fa-check"></i>
+                Duyệt đơn
+              </span>
+            </button>
             
           </div>
           
@@ -259,7 +281,9 @@ export default {
       selectedRowID: null,
       singleBills: [],
       singleBillsBackup: [],
-      updateMode: false
+      updateMode: false,
+      checkedBill: null,
+      checkedInvoices: []
     };
   },
   mounted: function() {
@@ -373,8 +397,31 @@ export default {
         vue.selectedRowID = rowID;
       });
     },
-    alertSelectedUids() {
-      alert(this.selection.map(({ id }) => id));
+    checkSelectedUids() {
+      let idArr = this.selection.map(({ id }) => id);
+      $("#detail-overlay").show();
+
+      let updatePromises = [];
+
+      for (let i = 0; i < idArr.length; i++) {
+        let promise = db
+          .ref()
+          .child(`Bills/${idArr[i]}`)
+          .update({ status: 2 });
+        updatePromises.push(promise);
+      }
+
+      Promise.all(updatePromises).then(value => {
+        this.selectedRowID = null;
+        this.$store.dispatch("alert", {
+          type: "success",
+          title: "Thao thác thành công",
+          message: `Đã duyệt thành công ${idArr.length} hoá đơn!`
+        });
+        setTimeout(() => {
+          $("#detail-overlay").hide();
+        }, 500);
+      });
     },
     showSelectedBill() {
       $("#detail-overlay").show();
@@ -406,6 +453,16 @@ export default {
     },
     deleteBill() {
       $("#detail-overlay").show();
+      // calculating user saved// return products
+      // update product amount
+      for (let i = 0; i < this.singleBillsBackup.length; i++) {
+        let bill = this.singleBillsBackup[i];
+
+        db.ref(`Products/${bill.productID}/amount`).transaction(amount => {
+          let result = parseInt(amount) + parseInt(bill.quantity);
+          return parseInt(result);
+        });
+      }
 
       db
         .ref()
@@ -419,6 +476,7 @@ export default {
           }
         });
 
+      // removing total bill
       db
         .ref()
         .child(`Bills/${this.selectedRow.id}`)
